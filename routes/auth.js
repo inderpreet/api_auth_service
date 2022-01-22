@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const User = require("../model/User");
 const UserModel = require("../model/User");
-const { registerValidation } = require("../validation");
+const { registerValidation, loginValidation } = require("../validation");
 
 router.post("/register", async (req, res) => {
   // validate data before db call
@@ -14,7 +14,7 @@ router.post("/register", async (req, res) => {
     const emailExists = await User.findOne({ email: req.body.email });
 
     if (emailExists) {
-      return res.status(400).send("Email already exisits");
+      return res.status(400).send("Email already exists");
     }
 
     // Hash the password
@@ -38,8 +38,32 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/login", (req, res) => {
-  res.send("Login");
+router.post("/login", async (req, res) => {
+  // validate data before db call
+  const validation = loginValidation(req.body);
+
+  if (validation.error) {
+    res.status(400).send(validation.error.message);
+  } else {
+    // Check if user exisits
+    const userExists = await User.findOne({ email: req.body.email });
+
+    if (!userExists) {
+      return res.status(400).send("Email does not exist");
+    }
+
+    // Hash the password validation
+    const bcrypt = require("bcrypt");
+    const validPassword = await bcrypt.compare(
+      req.body.password,
+      userExists.password
+    );
+    if (!validPassword) {
+      return res.status(400).send("Invalid Password");
+    } else {
+      res.send("Logged In");
+    }
+  }
 });
 
 module.exports = router;
