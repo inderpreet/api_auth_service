@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema(
+const tokenSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema(
       max: 25,
       min: 6,
     },
-    password: {
+    token: {
       type: String,
       required: true,
       max: 1024,
@@ -26,8 +26,8 @@ const userSchema = new mongoose.Schema(
     },
   },
   {
-    collection: "users",
+    collection: "tokens",
   }
 );
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model("Tokens", tokenSchema);
